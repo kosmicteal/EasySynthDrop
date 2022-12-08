@@ -31,7 +31,7 @@
 		</Border>
 		<Label Content="" Margin="10,61,0,352" Foreground="#FFA2A2A2" FontSize="16" FontFamily="Segoe MDL2 Assets" FontStretch="SemiExpanded"/>
 		<Button x:Name="CloseApp" ToolTip="Close" Style="{StaticResource UI_ESD}" Content="" HorizontalAlignment="Left" Margin="197,0,0,0" VerticalAlignment="Top" Width="43" FontFamily="Segoe MDL2 Assets" FontSize="28" Height="43" Click="CloseESD"/>
-		<Grid HorizontalAlignment="Left" Margin="10,107,0,38" Width="220" ShowGridLines="True" Background="#FF232525">
+		<Grid Margin="10,107,10,38" ShowGridLines="True" Background="#FF232525">
 		<TextBlock x:Name="FirstTime"  TextWrapping="Wrap" Foreground="#FFEAEAEA" FontFamily="Segoe UI Semibold" FontSize="24" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" />
 			<ScrollViewer VerticalScrollBarVisibility="Hidden">
 				<ItemsControl Name="dc_banks" ItemTemplate="{DynamicResource GridBankTemplate}" ItemsPanel="{DynamicResource GridBank2x2}"/>

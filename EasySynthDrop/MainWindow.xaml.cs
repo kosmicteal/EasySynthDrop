@@ -43,25 +43,33 @@ namespace EasySynthDrop
             DataContext = this;
             InitializeComponent();
 
+
+            // Find out which monitor the ViewerWindow should be on.
+            double WindowsUIScaling = VisualTreeHelper.GetDpi(this).DpiScaleX;
+            int a = ReturnScaling(WindowsUIScaling, 1000);
+
             WindowInteropHelper windowInteropHelper = new WindowInteropHelper(this);
             Screen currentScreen = Screen.FromHandle(windowInteropHelper.Handle);
             int screenwidth = currentScreen.WorkingArea.Width;
 
 
+
+
             DatabaseFind();
 
 
-            //////////ANIMATION
-
             //Size
-            MainUI.Width = screenwidth / 8;
-            MainUI.Height = currentScreen.WorkingArea.Height;
+            MainUI.Width = Math.Max(ReturnScaling(WindowsUIScaling, screenwidth / 8), 240);
+            MainUI.Height = ReturnScaling(WindowsUIScaling, currentScreen.WorkingArea.Height);
             //Position
             MainUI.Top = 0;
 
+
             //animation values
-            animend = screenwidth - MainUI.Width;
-            animstart = screenwidth;
+            animend = ReturnScaling(WindowsUIScaling, screenwidth) - MainUI.Width;
+            animstart = ReturnScaling(WindowsUIScaling,screenwidth);
+
+
 
 
             DoubleAnimation MainUIAnim =
@@ -75,7 +83,14 @@ namespace EasySynthDrop
             Storyboard story = new Storyboard();
             story.Children.Add(MainUIAnim);
             story.Begin();
+
         }
+
+        public int ReturnScaling(double percentage, int number)
+        {
+            return (int) (number / percentage);
+        }
+
 
         private void CloseESD(object sender, RoutedEventArgs e)
         {
