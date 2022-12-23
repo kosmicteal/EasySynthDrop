@@ -2,21 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using DataFormats = System.Windows.DataFormats;
 using DataObject = System.Windows.DataObject;
 using DragDropEffects = System.Windows.DragDropEffects;
@@ -33,6 +24,7 @@ namespace EasySynthDrop
 
         public class VBLite
         {
+            //DB class
             public string Profile { get; set; }
             public string Name { get; set; }
             public string DragFile { get; set; }
@@ -43,61 +35,49 @@ namespace EasySynthDrop
             DataContext = this;
             InitializeComponent();
 
+            //Find database information
+            DatabaseFind();
 
-            // Find out which monitor the ViewerWindow should be on.
+            // Get scaling for animation support
             double WindowsUIScaling = VisualTreeHelper.GetDpi(this).DpiScaleX;
             int a = ReturnScaling(WindowsUIScaling, 1000);
 
+            // Get screen width for animation support
             WindowInteropHelper windowInteropHelper = new WindowInteropHelper(this);
             Screen currentScreen = Screen.FromHandle(windowInteropHelper.Handle);
             int screenwidth = currentScreen.WorkingArea.Width;
 
-
-
-
-            DatabaseFind();
-
-
-            //Size
+            //Window size
             MainUI.Width = Math.Max(ReturnScaling(WindowsUIScaling, screenwidth / 8), 240);
             MainUI.Height = ReturnScaling(WindowsUIScaling, currentScreen.WorkingArea.Height);
+
             //Position
             MainUI.Top = 0;
 
-
-            //animation values
+            //Animation values
             animend = ReturnScaling(WindowsUIScaling, screenwidth) - MainUI.Width;
-            animstart = ReturnScaling(WindowsUIScaling,screenwidth);
+            animstart = ReturnScaling(WindowsUIScaling, screenwidth);
 
-
-
-
-            DoubleAnimation MainUIAnim =
-            new DoubleAnimation(animstart, animend, new Duration(new TimeSpan(0, 0, 0, 0, 400)));
-
-            MainUIAnim.EasingFunction = new CircleEase();
-
-            Storyboard.SetTarget(MainUIAnim, MainUI);
-            Storyboard.SetTargetProperty(MainUIAnim, new PropertyPath(Window.LeftProperty));
-
-            Storyboard story = new Storyboard();
-            story.Children.Add(MainUIAnim);
-            story.Begin();
+            AnimateWindow(animstart, animend, false);
 
         }
 
         public int ReturnScaling(double percentage, int number)
         {
-            return (int) (number / percentage);
+            return (int)(number / percentage);
         }
 
 
         private void CloseESD(object sender, RoutedEventArgs e)
         {
             File.Delete(AppDomain.CurrentDomain.BaseDirectory + @"template.svp");
+            AnimateWindow(animend, animstart, true);
+        }
 
+        private void AnimateWindow(double start, double end, bool close)
+        {
             DoubleAnimation MainUIAnim =
-            new DoubleAnimation(animend, animstart, new Duration(new TimeSpan(0, 0, 0, 0, 400)));
+            new DoubleAnimation(start, end, new Duration(new TimeSpan(0, 0, 0, 0, 400)));
 
             MainUIAnim.EasingFunction = new CircleEase();
 
@@ -106,9 +86,8 @@ namespace EasySynthDrop
 
             Storyboard story = new Storyboard();
             story.Children.Add(MainUIAnim);
-            story.Completed += (o, s) => Close();
+            if (close) story.Completed += (o, s) => Close();
             story.Begin();
-
         }
 
         private void ConfigESD(object sender, RoutedEventArgs e)
@@ -120,24 +99,24 @@ namespace EasySynthDrop
                 Properties.Settings.Default.databasepath = dialog.FileName;
                 Properties.Settings.Default.Save();
             }
-
             DatabaseFind();
         }
 
         private void Border_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             string drag_id = ((VBLite)((FrameworkElement)e.Source).DataContext).Name;
-            string text = "{\"version\": 129, \"time\": {\"meter\": [{\"index\": 0, \"numerator\": 4, \"denominator\": 4}], "+
-                " \"tempo\": [{\"position\": 0, \"bpm\": 120.0}]}, \"library\": [], \"tracks\": [{\"name\": \"Unnamed Track\", \"dispColor\": \"ff7db235\","+
-                " \"dispOrder\": -1, \"renderEnabled\": false, \"mixer\": {\"gainDecibel\": 0.0, \"pan\": 0.0, \"mute\": false, \"solo\": false, \"display\": true},"+
-                " \"mainGroup\": {\"name\": \"main\", \"uuid\": \"\", \"parameters\": {\"pitchDelta\": {\"mode\": \"cubic\", \"points\": []}, \"vibratoEnv\": "+
-                "{\"mode\": \"cubic\", \"points\": []}, \"loudness\": {\"mode\": \"cubic\", \"points\": []}, \"tension\": {\"mode\": \"cubic\", \"points\": []},"+
-                " \"breathiness\": {\"mode\": \"cubic\", \"points\": []}, \"voicing\": {\"mode\": \"cubic\", \"points\": []}, \"gender\": {\"mode\": \"cubic\", "+
-                "\"points\": []}, \"toneShift\": {\"mode\": \"cubic\", \"points\": []}}, \"notes\": []}, \"mainRef\": {\"groupID\": \"\", \"blickOffset\": 0, "+
-                "\"pitchOffset\": 0, \"isInstrumental\": false, \"systemPitchDelta\": {\"mode\": \"cubic\", \"points\": []}, \"database\": {\"name\": \"" + drag_id + 
-                "\"}, \"dictionary\": \"\", \"voice\": {\"vocalModeInherited\": true, \"vocalModePreset\": \"\", \"vocalModeParams\": {}}, \"pitchTakes\": "+
-                "{\"activeTakeId\": 0, \"takes\": [{\"id\": 0, \"expr\": 1.0, \"liked\": false}]}, \"timbreTakes\": {\"activeTakeId\": 0, \"takes\": [{\"id\": 0,"+
-                " \"expr\": 1.0, \"liked\": false}]}}, \"groups\": []}], \"renderConfig\": {\"destination\": \"./\", \"filename\": \"untitled\", \"numChannels\": 1,"+
+            //file to be created as a template
+            string text = "{\"version\": 129, \"time\": {\"meter\": [{\"index\": 0, \"numerator\": 4, \"denominator\": 4}], " +
+                " \"tempo\": [{\"position\": 0, \"bpm\": 120.0}]}, \"library\": [], \"tracks\": [{\"name\": \"Unnamed Track\", \"dispColor\": \"ff7db235\"," +
+                " \"dispOrder\": -1, \"renderEnabled\": false, \"mixer\": {\"gainDecibel\": 0.0, \"pan\": 0.0, \"mute\": false, \"solo\": false, \"display\": true}," +
+                " \"mainGroup\": {\"name\": \"main\", \"uuid\": \"\", \"parameters\": {\"pitchDelta\": {\"mode\": \"cubic\", \"points\": []}, \"vibratoEnv\": " +
+                "{\"mode\": \"cubic\", \"points\": []}, \"loudness\": {\"mode\": \"cubic\", \"points\": []}, \"tension\": {\"mode\": \"cubic\", \"points\": []}," +
+                " \"breathiness\": {\"mode\": \"cubic\", \"points\": []}, \"voicing\": {\"mode\": \"cubic\", \"points\": []}, \"gender\": {\"mode\": \"cubic\", " +
+                "\"points\": []}, \"toneShift\": {\"mode\": \"cubic\", \"points\": []}}, \"notes\": []}, \"mainRef\": {\"groupID\": \"\", \"blickOffset\": 0, " +
+                "\"pitchOffset\": 0, \"isInstrumental\": false, \"systemPitchDelta\": {\"mode\": \"cubic\", \"points\": []}, \"database\": {\"name\": \"" + drag_id +
+                "\"}, \"dictionary\": \"\", \"voice\": {\"vocalModeInherited\": true, \"vocalModePreset\": \"\", \"vocalModeParams\": {}}, \"pitchTakes\": " +
+                "{\"activeTakeId\": 0, \"takes\": [{\"id\": 0, \"expr\": 1.0, \"liked\": false}]}, \"timbreTakes\": {\"activeTakeId\": 0, \"takes\": [{\"id\": 0," +
+                " \"expr\": 1.0, \"liked\": false}]}}, \"groups\": []}], \"renderConfig\": {\"destination\": \"./\", \"filename\": \"untitled\", \"numChannels\": 1," +
                 " \"aspirationFormat\": \"noAspiration\", \"bitDepth\": 16, \"sampleRate\": 44100, \"exportMixDown\": true}, \"instantModeEnabled\": true}";
             File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + @"template.svp", text);
 
@@ -149,7 +128,6 @@ namespace EasySynthDrop
 
             DragDrop.DoDragDrop((DependencyObject)e.Source, data, DragDropEffects.Copy);
         }
-
 
         private void DatabaseFind()
         {
@@ -165,7 +143,8 @@ namespace EasySynthDrop
                     VBLite aux = new VBLite();
                     aux.Profile = directories[i] + "\\profile.png";
                     aux.Name = directories[i].Remove(0, path.Length + 1).Replace("_", " ");
-                    if (File.Exists(directories[i] + "\\voice.nofs")){
+                    if (File.Exists(directories[i] + "\\voice.nofs"))
+                    {
                         item_banks.Add(aux);
                     }
                 }
@@ -177,7 +156,8 @@ namespace EasySynthDrop
                     FirstTime.Text = "Oops...\n\nNo SynthV databases found, try to search them again on Settings";
                     FirstTime.Opacity = 1;
                 }
-            } else
+            }
+            else
             {
                 FirstTime.Text = "Welcome!\n\nClick on the Settings button to open your SynthV Databases folder";
                 FirstTime.Opacity = 1;
@@ -185,6 +165,6 @@ namespace EasySynthDrop
 
         }
 
-
     }
+
 }
