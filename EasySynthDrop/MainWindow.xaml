@@ -1,0 +1,45 @@
+﻿<Window x:Name="MainUI" x:Class="EasySynthDrop.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:EasySynthDrop"
+        mc:Ignorable="d"
+        Title="EasySynthDrop" Height="450" Width="240" Topmost="True" ResizeMode="NoResize" WindowStyle="None">
+	<Window.Resources>
+		<DataTemplate x:Key="GridBankTemplate">
+			<Border BorderThickness="0,0,0,1" HorizontalAlignment="Left" Height="80" VerticalAlignment="Top" Width="220" Grid.Row="1" Background="#FF2A2C2C" MouseLeftButtonDown="Border_MouseLeftButtonDown">
+				<Grid>
+					<Border BorderThickness="1" Margin="5,0,0,0" Width="70" Height="70" HorizontalAlignment="Left">
+						<Border.Background>
+							<ImageBrush ImageSource="{Binding Profile}"/>
+						</Border.Background>
+					</Border>
+					<TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="{Binding Name}" VerticalAlignment="Center" FontSize="16" FontFamily="Segoe UI Semibold" Margin="80,10,10,16" Foreground="#FFA2A2A2"/>
+				</Grid>
+			</Border>
+		</DataTemplate>
+		<ItemsPanelTemplate x:Key="GridBank2x2">
+			<UniformGrid Columns="1" HorizontalAlignment="Left" VerticalAlignment="Top" />
+		</ItemsPanelTemplate>
+	</Window.Resources>
+
+
+	<Grid Background="#FF303434">
+		<Border BorderBrush="#FF171717" BorderThickness="0,0,0,1" Height="98" VerticalAlignment="Top">
+			<Label Content="E a s y S y n t h D r o p" Margin="0,0,0,-1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="203" Foreground="#FFD4D4D4" FontSize="13" Height="39" FontFamily="Segoe UI Semibold" FontStretch="SemiExpanded"/>
+		</Border>
+		<Label Content="" Margin="10,61,0,352" Foreground="#FFA2A2A2" FontSize="16" FontFamily="Segoe MDL2 Assets" FontStretch="SemiExpanded"/>
+		<Button x:Name="CloseApp" ToolTip="Close" Style="{StaticResource UI_ESD}" Content="" HorizontalAlignment="Left" Margin="197,0,0,0" VerticalAlignment="Top" Width="43" FontFamily="Segoe MDL2 Assets" FontSize="28" Height="43" Click="CloseESD"/>
+		<Grid Margin="10,107,10,38" ShowGridLines="True" Background="#FF232525">
+		<TextBlock x:Name="FirstTime"  TextWrapping="Wrap" Foreground="#FFEAEAEA" FontFamily="Segoe UI Semibold" FontSize="24" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" />
+			<ScrollViewer VerticalScrollBarVisibility="Hidden">
+				<ItemsControl Name="dc_banks" ItemTemplate="{DynamicResource GridBankTemplate}" ItemsPanel="{DynamicResource GridBank2x2}"/>
+			</ScrollViewer>
+
+		</Grid>
+		<Button x:Name="SetDirectory" ToolTip="Set SynthV Database Directory" Style="{StaticResource UI_ESD}" Content="" HorizontalAlignment="Left" Margin="154,0,0,0" VerticalAlignment="Top" Width="43" FontFamily="Segoe MDL2 Assets" FontSize="28" Height="43" Click="ConfigESD"/>
+		<Button x:Name="Webpage" Style="{StaticResource AboutESD}" Content="Created by KosmicTeal" HorizontalAlignment="Right" Margin="0,0,10,10" VerticalAlignment="Bottom" Width="150" FontFamily="Segoe UI Semibold" FontSize="14" Height="23" Click="CloseESD" BorderBrush="#00707070" VerticalContentAlignment="Bottom" HorizontalContentAlignment="Right">
+		</Button>
+	</Grid>
+</Window>
